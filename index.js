@@ -12,14 +12,10 @@ const users = []
 function checksExistsUserAccount(request, response, next) {
   const { username } = request.headers
 
-  const user = users.find(user => username === username)
-  const userExists = users.find(user => user.id === null)
+  const user = users.find(user => user.username === username)
 
   if (!user) {
-    return response.status(400).json({ error: 'Username already exists' })
-  }
-  if (!userExists) {
-    return response.status(404).json({ error: 'Username doest not exists' })
+    return response.status(400).json({ error: 'User already exists' })
   }
 
   request.user = user
@@ -30,48 +26,47 @@ function checksExistsUserAccount(request, response, next) {
 function checksCreateTodosUserAvailability(request, response, next) {
   const { username } = request.headers
 
-  const user = users.find(user => username === username)
-  if ((user.pro === true) | ((user.pro === false) & (user.todo <= 10))) {
-    return next()
-  } else {
-    ;(user.pro === false) & (user.todo >= 10)
-    return response
-      .status(403)
-      .json({ error: 'Username is not a pro and already have 10 todos' })
+  const user = users.find(user => user.name === username)
+
+  if (!user) {
+    return response.status(404).json({ error: 'User not found' })
   }
+  if (user.pro || (!user.pro && user.todo.lenght <= 10)) {
+    return next()
+  }
+
+  return response
+    .status(403)
+    .json({ error: 'Username is not a pro and already have 10 todos' })
 }
 
 function checksTodoExists(request, response, next) {
-  const { username } = request.headers
   const { id } = request.params
 
-  const user = users.find(user => user.name === name)
-  const todo = user.todos.find(todo => todo.id === id)
+  const user = users.find(user => user.id === id)
 
-  if (username != user) {
-    return response.status(404).json({ error: 'Username does not exists' })
+  if (!user) {
+    return response.status(404).json({ error: 'User does not exists' })
   }
-  if (user.uuidv4 != validate) {
-    return response.status(400).json({ error: 'Username is not valid' })
-  }
-  if (user.todo != user.todo) {
+
+  if (!user.todo) {
     return response.status(404).json({ error: 'Todo does not exists' })
   }
+
   request.user = user
-  request.todo = todo
 
   return next()
 }
 
 function findUserById(request, response, next) {
-  const { username } = request.headers
   const { id } = request.params
 
   const user = users.find(user => user.id === id)
 
-  if (username != user) {
+  if (!user) {
     return response.status(404).json({ error: 'Username doest not exists' })
   }
+
   request.user = user
 
   return next()
